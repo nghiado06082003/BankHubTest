@@ -13,7 +13,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const UserInfoSchema = new mongoose.Schema({
     clientId: String,
     secretKey: String,
-    accessKey: String
+    accessKey: String,
+    grantId: String
 });
 const UserInfo = mongoose.model('userinfo', UserInfoSchema);
 
@@ -80,7 +81,10 @@ app.post("/api/exchange", async (req, res) => {
     axios(config)
         .then(async (response) => {
             try {
-                await UserInfo.updateOne({ _id: userId }, { accessKey: response.data.accessToken }).exec();
+                await UserInfo.updateOne({ _id: userId }, { 
+                    accessKey: response.data.accessToken,
+                    grantId: response.data.grantId
+                }).exec();
                 res.status(200).json({ message: "Thành công!" })
             }
             catch {

@@ -6,7 +6,9 @@ import { BrowserRouter } from 'react-router-dom';
 function App() {
   return (
     <BrowserRouter>
-      <Demo></Demo>
+      <div className='vw-100 vh-100' style={{ backgroundImage: "url(/image.jpg)", backgroundPosition: "center", backgroundSize: "1024px" }}>
+        <Demo></Demo>
+      </div>
     </BrowserRouter>
   );
 }

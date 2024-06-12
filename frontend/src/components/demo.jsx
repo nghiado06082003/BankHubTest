@@ -7,6 +7,8 @@ export const Demo = () => {
     let [searchParams, setSearchParams] = useSearchParams();
     let [button, setButton] = useState(false);
     let [trans, setTrans] = useState("");
+    let [connectNoti, setConnectNoti] = useState(null);
+    let [transNoti, setTransNoti] = useState(null);
     const onStartClick = () => {
         axios.post("http://localhost:8080/api/connect", {
             redirectUri: "http://localhost:3000",
@@ -17,6 +19,7 @@ export const Demo = () => {
         }).catch(error => console.log(error))
     }
     const onTransactionsClick = () => {
+        setTransNoti(<p>Đang tải...</p>)
         axios.get("http://localhost:8080/api/transactions", {
             params: {
                 userId: "6667ff4418faa991efce5b59"
@@ -24,13 +27,18 @@ export const Demo = () => {
         }).then(response => {
             console.log(response.data.transactions)
             setTrans(response.data.transactions);
-        }).catch(error => console.log(error))
+            setTransNoti(<p className="text-success">Lấy thông tin thành công</p>)
+        }).catch(error => {
+            console.log(error)
+            setTransNoti(<p className="text-danger">Lấy thông tin thất bại. Mã lỗi: {error.response.data.status}</p>)
+        })
     }
 
     useEffect(() => {
         let publicToken = searchParams.get("publicToken");
         if (publicToken) {
             console.log(publicToken)
+            setConnectNoti(<p>Đang liên kết...</p>)
             axios.post("http://localhost:8080/api/exchange", {
                 userId: "6667ff4418faa991efce5b59",
                 publicToken: publicToken
@@ -38,7 +46,11 @@ export const Demo = () => {
                 setButton(true);
                 searchParams.delete('publicToken');
                 setSearchParams(searchParams);
-            }).catch(error => console.log(error))
+                setConnectNoti(<p className="text-success">Liên kết thành công</p>)
+            }).catch(error => {
+                console.log(error)
+                setConnectNoti(<p className="text-danger">Liên kết thất bại. Mã lỗi: {error.response.data.status}</p>)
+            })
         }
     }, [])
 
@@ -47,14 +59,32 @@ export const Demo = () => {
         <>
             <div className="container-md my-2">
                 <h1 className="mx-auto">Thử nghiệm làm quen với BankHub</h1>
-                <button type="button" className="btn btn-primary" onClick={onStartClick}>Liên kết ngân hàng mới</button>
-                {button && (
-                    <button type="button" className="btn btn-primary" onClick={onTransactionsClick}>Lấy thông tin giao dịch</button>
-                )}
+                <div className="row">
+                    <div className="col">
+                        <h5>Bước 1: Kết nối ngân hàng</h5>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <button type="button" className="btn btn-primary" onClick={onStartClick}>Liên kết ngân hàng mới</button>
+                        {connectNoti}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <h5>Bước 2: Lấy thông tin giao dịch</h5>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <button type="button" className="btn btn-primary" onClick={onTransactionsClick}>Lấy thông tin giao dịch</button>
+                        {transNoti}
+                    </div>
+                </div>
                 {trans && (
                     <div className="row">
                         <div className="col">
-                            <table className="table">
+                            <table className="table table-striped table-hover table-bordered">
                                 <thead>
                                     <tr>
                                         <th scope="col">Mã tham chiếu giao dịch</th>
